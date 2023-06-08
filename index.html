@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Map of Marseille</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css">
+</head>
+<body>
+    <div id="map"></div>
+    <div id="add-bar-form">
+        <h2>Add Bar</h2>
+        <form id="add-bar-form" onsubmit="addBar(event)">
+            <label for="coordinates">Coordinates (latitude, longitude):</label>
+            <input type="text" id="coordinates" name="coordinates" required>
+
+            <button type="submit">Add</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
