@@ -18,7 +18,7 @@ body {
 
 #trouve-un-bar {
     background: #13e300;
-    border: 2px solid #ffffff;
+    border: 1px solid #ffffff;
     color: #fff;
     border-radius: 10px;
     text-align: center;
@@ -44,9 +44,28 @@ body {
     cursor: pointer;
 }
 
+#bord-de-mer-filtre-categorie {
+    position: absolute;
+    top: 108px;
+    left: 130px;
+    padding: 10px;
+    z-index: 1;
+}
+
+#filtrer-un-bar {
+    background: #ffffff;
+    border: 0px solid #0f0e0e;
+    color: #000000;
+    border-radius: 10px;
+    text-align: center;
+    padding: 5px 6px;
+    cursor: pointer;
+
+}
+
 #static-text {
     position: absolute;
-    top: 90px;
+    top: 150px;
     left: 0px;
     padding: 10px;
     z-index: 1;
