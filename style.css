@@ -10,7 +10,7 @@ body {
 
 #trouve-button {
     position: absolute;
-    top: 50px;
+    top: 65px;
     left: 0px;
     padding: 10px;
     z-index: 1;
@@ -20,7 +20,25 @@ body {
     background: #13e300;
     border: 2px solid #ffffff;
     color: #fff;
-    border-radius: 12px;
+    border-radius: 10px;
+    text-align: center;
+    padding: 8px 16px;
+    cursor: pointer; 
+}
+
+#ajouter-button {
+    position: absolute;
+    top: 108px;
+    left: 0px;
+    padding: 10px;
+    z-index: 1;
+}
+
+#ajoute-un-bar {
+    background: #ffffff;
+    border: 0px solid #0f0e0e;
+    color: #000000;
+    border-radius: 10px;
     text-align: center;
     padding: 8px 16px;
     cursor: pointer;
