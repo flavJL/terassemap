@@ -3,21 +3,20 @@
 <head>
     <title>Map of Marseille</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css">
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.8.0/suncalc.min.js"></script>
 </head>
 <body>
     <div id="map"></div>
-    <div id="add-bar-form">
-        <h2>Add Bar</h2>
-        <form id="add-bar-form" onsubmit="addBar(event)">
-            <label for="coordinates">Coordinates (latitude, longitude):</label>
-            <input type="text" id="coordinates" name="coordinates" required>
-
-            <button type="submit">Add</button>
-        </form>
+    <div id="trouve-button">
+        <button id="trouve-un-bar"><b>Trouve un bar cool</b></button>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <div id="static-text">
+        <button id="promote-button">Mettre en avant votre bar</button>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
