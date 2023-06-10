@@ -1,6 +1,7 @@
 body {
     margin: 0;
     padding: 0;
+    font-family: 'Nunito', sans-serif;
 }
 
 #map {
@@ -10,7 +11,7 @@ body {
 
 #trouve-button {
     position: absolute;
-    top: 65px;
+    top: 150px;
     left: 0px;
     padding: 10px;
     z-index: 1;
@@ -28,7 +29,7 @@ body {
 
 #ajouter-button {
     position: absolute;
-    top: 108px;
+    top: 200px;
     left: 0px;
     padding: 10px;
     z-index: 1;
@@ -46,13 +47,13 @@ body {
 
 #bord-de-mer-filtre-categorie {
     position: absolute;
-    top: 108px;
-    left: 130px;
+    top: 55px;
+    left: 0px;
     padding: 10px;
     z-index: 1;
 }
 
-#filtrer-un-bar {
+#critere {
     background: #ffffff;
     border: 0px solid #0f0e0e;
     color: #000000;
@@ -65,7 +66,7 @@ body {
 
 #static-text {
     position: absolute;
-    top: 150px;
+    top: 500px;
     left: 0px;
     padding: 10px;
     z-index: 1;
@@ -97,11 +98,45 @@ body {
     border: 1px solid #ccc;
 }
 
-.my-custom-popup .mapboxgl-popup-content {
-    /* Your custom styles */
-    background-color: #333;
-    color: white;
-    font-size: 1.2em;
-    padding: 15px;
-    border-radius: 15px;
+.custom-popup {
+    height: 194px;
+    width: 200px;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    max-width: 300px;
+    z-index: 9999;
 }
+
+#bar-of-week {
+    background: #ff4742;
+    border: 2px solid #ff4742;
+    color: #fff;
+    border-radius: 12px;
+    text-align: center;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.mapboxgl-popup-content {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .mapboxgl-popup-content h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  .mapboxgl-popup-content p {
+    font-size: 14px;
+    margin-bottom: 3px;
+  }
+  

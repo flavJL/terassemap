@@ -7,22 +7,49 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.8.0/suncalc.min.js"></script>
 </head>
 <body>
     <div id="map"></div>
+    <div id="custom-popup" class="custom-popup">
+        <h4>Lieu de la semaine 🍺</h4>
+        <p>Cette semaine c'est le Bar des amis qui est à l'honneur<br>Ambiance chill entre amis avec des panisses délicieuse et couché de soleil</p>
+        <button id="bar-of-week"><b>Découvrir 🍻</b></button>
+    </div>
     <div id="trouve-button">
         <button id="trouve-un-bar"><b>Trouve un bar cool</b></button>
     </div>
     <div id="ajouter-button">
         <button id="ajoute-un-bar"><b>Ajoute un lieu</b></button>
+        <!-- This form will be used to submit new bars -->
+        <form id="add-bar-form" style="display: none;">
+            <label for="bar-name">Bar Name:</label><br>
+            <input type="text" id="bar-name" name="bar-name"><br>
+            <label for="bar-description">Description:</label><br>
+            <input type="text" id="bar-description" name="bar-description"><br>
+            <label for="bar-category">Category:</label><br>
+            <input type="text" id="bar-category" name="bar-category"><br>
+            <label for="bar-lat">Latitude:</label><br>
+            <input type="text" id="bar-lat" name="bar-lat"><br>
+            <label for="bar-lng">Longitude:</label><br>
+            <input type="text" id="bar-lng" name="bar-lng"><br>
+            <input type="submit" value="Submit">
+        </form>
     </div>
     <div id="bord-de-mer-filtre-categorie">
-        <button id="filtrer-un-bar"><b>Bord de mer 🌊</b></button>
-    </div>
+    <label for="criteres"></label>
+    <select name="critere" id="critere">
+        <option value="bord_de_mer">Bord de mer 🌊</option>
+        <option value="happy_hour">Happy Our</option>
+        <option value="avec_vue">Belle vue</option>
+        <option value="chic">Chic </option>
+    </select></div>
     <div id="static-text">
         <button id="promote-button">Mettre en avant votre bar</button>
     </div>
     <script src="script.js"></script>
+    <script src="frontend.js"></script>
 </body>
 </html>

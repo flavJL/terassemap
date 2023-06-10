@@ -1,121 +1,108 @@
-// The Mapbox access token
+// Script.js
+
+// Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiZmxhdmlzYnVpbGRpbmciLCJhIjoiY2xpbjVycGY1MDI4czNxbWxwbDMydXB5biJ9.LxYdRjcoKE0N4sHkgJuSeA';
 
-// The WeatherAPI key
-const weatherApiKey = '699093b9e65e4ec08b6172342230906';
+// Initialize the map
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/streets-v11',
+  center: [5.3698, 43.2965],
+  zoom: 13
+});
 
-// Declare the map variable outside the initializeMap function
-let map;
+const geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    mapboxgl: mapboxgl,
+    placeholder: 'Search for a location', // Custom placeholder text
+  });
+  
+  // Add the geocoder to the top-left of the map
+  map.addControl(geocoder, 'top-left');
 
-// Function to initialize the map and geocoder
-function initializeMap() {
-    // Initialize the Mapbox map
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [5.3698, 43.2965],
-        zoom: 13
-    });
-
-    // Initialize the Mapbox geocoder
-    const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-    });
-
-    // Add the geocoder to the top left of the map
-    map.addControl(geocoder, 'top-left');
-
-
-    // Handle the 'result' event of the geocoder
-    geocoder.on('result', function(e) {
-        const coordinates = e.result.geometry.coordinates;
-
-        // Get sun times and position
-        const times = SunCalc.getTimes(new Date(), coordinates[1], coordinates[0]);
-        const sunsetPosition = SunCalc.getPosition(times.sunset, coordinates[1], coordinates[0]);
-
-        // Start building the description
-        let description = `<p>Levé du soleil: ${times.sunrise.toLocaleTimeString('fr-FR')}<br>Couché du soleil: ${times.sunset.toLocaleTimeString('fr-FR')}<br>Solar noon: ${times.solarNoon.toLocaleTimeString('fr-FR')}</p>`;
-
-        // Calculate the time of year weight
-        const timeOfYearWeight = 0.5 + 0.5 * Math.cos(sunsetPosition.azimuth);
-
-        // Fetch water proximity data from Mapbox
-        fetch(`https://api.mapbox.com/v4/mapbox.mapbox-terrain-v2/tilequery/${coordinates[0]},${coordinates[1]}.json?radius=1000&layers=water&access_token=${mapboxgl.accessToken}`)
-            .then(response => response.json())
-            .then(data => {
-                // Calculate the water proximity weight
-                const waterProximityWeight = data.features.length > 0 ? 1 : 0.5;
-
-                // Calculate the visibility chance
-                const visibilityChance = timeOfYearWeight * waterProximityWeight * 100;
-
-                // Add the visibility chance to the description
-                description += `<p>Probabilité d'y voir le couché du soleil: ${visibilityChance.toFixed(2)}%</p>`;
-
-                // Fetch weather data from WeatherAPI
-                fetch(`https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${coordinates[1]},${coordinates[0]}`)
-                    .then(response => response.json())
-                    .then(weatherData => {
-                        // Add the weather data to the description
-                        description += `<p>Météo: ${weatherData.current.condition.text}<br>Temperature: ${weatherData.current.temp_c}°C<br>Vent: ${weatherData.current.wind_kph} km/h</p>`;
-                        
-                        // Create a popup with the description and add it to the map
-                        new mapboxgl.Popup({ className: 'my-custom-popup' })
-                            .setLngLat(coordinates)
-                            .setHTML(description)
-                            .addTo(map);
-                    });
-            });
-    });
-}
-
-initializeMap();
-
-// Function to fetch the votes for the current characteristics from the server
-function fetchVotes() {
-    fetch('fetch_votes.php')
-        .then(response => response.json())
-        .then(votes => {
-            // Process votes and update the badges with vote counts
-            const badges = document.querySelectorAll('.characteristic-badge');
-            badges.forEach(badge => {
-                const characteristic = badge.getAttribute('data-characteristic');
-                const vote = votes.find(vote => vote.characteristic === characteristic);
-                const voteCount = vote ? vote.votes : 0;
-                badge.textContent = `${characteristic}: ${voteCount} votes`;
-            });
-        });
-}
-
-// Function to handle upvoting a characteristic
-function handleUpvote(characteristic) {
-    fetch('upvote.php', {
+// Function to fetch bars from the backend and add them to the map
+function fetchBars(map) {
+    fetch('DatabaseHandler.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-            'characteristic': characteristic,
-        }),
-    })
-    .then(response => response.json())
-    .then(updatedVote => {
-        // Update the badge with the new vote count
-        const badge = document.querySelector(`[data-characteristic="${characteristic}"]`);
-        if (badge) {
-            badge.textContent = `${characteristic}: ${updatedVote.votes} votes`;
-        }
+        body: `action=addBar&name=${name}&description=${description}&category=${category}&lat=${lat}&lng=${lng}`
+      })
+
+  .then(response => response.json())
+  .then(bars => {
+    bars.forEach(bar => {
+      const coordinates = [bar.lng, bar.lat];
+      const popup = new mapboxgl.Popup({
+        closeButton: false,
+        offset: 25,
+        className: 'custom-popup-map'
+      })
+      .setHTML(createPopupContent(bar.name, bar.description, bar.category))
+      .addTo(map);
+
+      new mapboxgl.Marker()
+        .setLngLat(coordinates)
+        .setPopup(popup)
+        .addTo(map);
     });
+  });
 }
 
-// Fetch the votes when the page loads
-fetchVotes();
+// Function to create popup content for a bar
+function createPopupContent(name, description, category) {
+  const content = `
+    <h3>${name}</h3>
+    <p>Description: ${description}</p>
+    <p>Category: ${category}</p>
+  `;
 
-// Event listeners for characteristics badges
-const badges = document.querySelectorAll('.characteristic-badge');
-badges.forEach(badge => {
-    const characteristic = badge.getAttribute('data-characteristic');
-    badge.addEventListener('click', () => handleUpvote(characteristic));
+  return content;
+}
+
+// Event listener to show the add bar form when "Ajoute un lieu" button is clicked
+document.getElementById('ajoute-un-bar').addEventListener('click', function() {
+  document.getElementById('add-bar-form').style.display = 'block';
 });
+
+// Event listener to handle form submission
+document.getElementById('add-bar-form').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const form = event.target;
+  const name = form.elements['bar-name'].value;
+  const description = form.elements['bar-description'].value;
+  const category = form.elements['bar-category'].value;
+  const lat = form.elements['bar-lat'].value;
+  const lng = form.elements['bar-lng'].value;
+
+  addBar(name, description, category, lat, lng);
+});
+
+// Function to add a new bar to the database
+function addBar(name, description, category, lat, lng) {
+  const params = new URLSearchParams();
+  params.append('action', 'addBar');
+  params.append('name', name);
+  params.append('description', description);
+  params.append('category', category);
+  params.append('lat', lat);
+  params.append('lng', lng);
+
+  fetch('DatabaseHandler.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: params.toString(),
+  })
+    .then(response => response.text())
+    .then(response => {
+      console.log(response); // Log the response from the server
+      document.getElementById('add-bar-form').style.display = 'none'; // Hide the form after submission
+    })
+    .catch(error => console.log(error));
+}
+
+// Call the function to fetch bars from the backend and add them to the map
+fetchBars(map);
