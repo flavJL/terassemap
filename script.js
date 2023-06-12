@@ -58,26 +58,35 @@ fetch('/bars')
   })
   .catch(error => console.error('Error fetching place data:', error));
 
-function createPopup(place) {
-  const popup = new mapboxgl.Popup().setHTML(`
-    <h3>${place.name}</h3>
-    <p>${place.description}</p>
-    <div id="tags-${place.id}" class="tags">
-      <h4>Tags:</h4>
-      <ul id="tag-list-${place.id}" class="tag-list">
-        ${place.tags
-          .map(
-            tag =>
-              `<li>${tag.name} (Upvotes: ${tag.upvotes}, Downvotes: ${tag.downvotes}) <button onclick="voteTag(${tag.id}, 1)">Upvote</button> <button onclick="voteTag(${tag.id}, -1)">Downvote</button></li>`
-          )
-          .join('')}
-      </ul>
-      <div class="tag-form">
-        <input type="text" id="tag-input-${place.id}" placeholder="Enter a new tag">
-        <button class="tag-button" onclick="addTag(${place.id})">Add Tag</button>
+  function createPopup(place) {
+    const popup = new mapboxgl.Popup().setHTML(`
+      <div class="popup-container">
+        <h3 class="popup-title">${place.name}</h3>
+        <p class="popup-description">${place.description}</p>
+        <div id="tags-${place.id}" class="tags">
+          <h4 class="tags-title">Caractéristiques:</h4>
+          <ul id="tag-list-${place.id}" class="tag-list">
+            ${place.tags
+              .map(
+                tag =>
+                  `<li class="tag-item">
+                    ${tag.name} 
+                    <span class="tag-votes">(👍 ${tag.upvotes} | 👎 ${tag.downvotes})</span>
+                    <div class="tag-buttons">
+                      <button class="tag-button" onclick="voteTag(${tag.id}, 1)">Vrai</button>
+                      <button class="tag-button" onclick="voteTag(${tag.id}, -1)">Faux</button>
+                    </div>
+                  </li>`
+              )
+              .join('')}
+          </ul>
+          <div class="tag-form">
+            <input type="text" id="tag-input-${place.id}" placeholder="Ajouter une caractéristique">
+            <button class="tag-button" onclick="addTag(${place.id})">Add Tag</button>
+          </div>
+        </div>
       </div>
-    </div>
-  `);
+    `);
 
   return popup;
 }
@@ -124,30 +133,35 @@ function addTag(barId) {
 }
 
 function toggleForm() {
-  const stepOneForm = document.getElementById('step-one-form');
   const stepTwoForm = document.getElementById('step-two-form');
 
-  if (stepOneForm.style.display === 'none') {
-    stepOneForm.style.display = 'block';
-    stepTwoForm.style.display = 'none';
-  } else {
-    stepOneForm.style.display = 'none';
+  if (stepTwoForm.style.display === 'none') {
     stepTwoForm.style.display = 'block';
+  } else {
+    stepTwoForm.style.display = 'none';
+  }
+}
 
-    const placeSearchInput = document.getElementById('place-search');
-    const searchQuery = placeSearchInput.value;
+function validateSearch() {
+  const placeSearchInput = document.getElementById('place-search');
+  const searchQuery = placeSearchInput.value;
 
-    if (searchQuery) {
-      geocoder.query(searchQuery, function (result) {
-        const placeNameInput = document.getElementById('place-name');
-        const placeLatInput = document.getElementById('place-lat');
-        const placeLngInput = document.getElementById('place-lng');
+  if (searchQuery) {
+    geocoder.query(searchQuery, function (result) {
+      const placeNameInput = document.getElementById('place-name');
+      const placeDescriptionInput = document.getElementById('place-description');
+      const placeTagsInput = document.getElementById('place-tags');
+      const placeLatInput = document.getElementById('place-lat');
+      const placeLngInput = document.getElementById('place-lng');
 
-        placeNameInput.value = result.result.text;
-        placeLatInput.value = result.result.center[1];
-        placeLngInput.value = result.result.center[0];
-      });
-    }
+      placeNameInput.value = result.result.text;
+      placeDescriptionInput.value = '';
+      placeTagsInput.value = '';
+      placeLatInput.value = result.result.center[1];
+      placeLngInput.value = result.result.center[0];
+      
+      toggleForm();
+    });
   }
 }
 
