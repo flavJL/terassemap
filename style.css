@@ -66,21 +66,20 @@ body {
 
 #static-text {
     position: absolute;
-    top: 500px;
+    font-size: 22px;
+    top: 0px;
     left: 0px;
-    padding: 10px;
     z-index: 1;
+    color: #fff;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+    text-align: center;
+    cursor: pointer;
+    margin-left: 300px;
+    margin-right: 10px;
+    margin-top: -20px;
+    margin-bottom: -20px;
 }
 
-#promote-button {
-    background: #ff4742;
-    border: 2px solid #ff4742;
-    color: #fff;
-    border-radius: 12px;
-    text-align: center;
-    padding: 8px 16px;
-    cursor: pointer;
-}
 
 #search-container {
     position: absolute;
@@ -99,10 +98,10 @@ body {
 }
 
 .custom-popup {
-    height: 194px;
+    height: 254px;
     width: 200px;
     position: fixed;
-    bottom: 10px;
+    bottom: 100px;
     right: 10px;
     background-color: #fff;
     border: 1px solid #ccc;
@@ -139,4 +138,29 @@ body {
     font-size: 14px;
     margin-bottom: 3px;
   }
+  
+  .marker {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #ff4742;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1;
+  }
+  
+  .title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%, -100%);
+    top: -30px;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+    white-space: nowrap;
+    z-index: 2;
+  }
+  
   

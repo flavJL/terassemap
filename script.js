@@ -1,5 +1,3 @@
-// Script.js
-
 // Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiZmxhdmlzYnVpbGRpbmciLCJhIjoiY2xpbjVycGY1MDI4czNxbWxwbDMydXB5biJ9.LxYdRjcoKE0N4sHkgJuSeA';
 
@@ -12,97 +10,214 @@ const map = new mapboxgl.Map({
 });
 
 const geocoder = new MapboxGeocoder({
-    accessToken: mapboxgl.accessToken,
-    mapboxgl: mapboxgl,
-    placeholder: 'Search for a location', // Custom placeholder text
-  });
-  
-  // Add the geocoder to the top-left of the map
-  map.addControl(geocoder, 'top-left');
+  accessToken: mapboxgl.accessToken,
+  mapboxgl: mapboxgl,
+  placeholder: 'Cherche un bar' // Custom placeholder text
+});
 
-// Function to fetch bars from the backend and add them to the map
-function fetchBars(map) {
-    fetch('DatabaseHandler.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `action=addBar&name=${name}&description=${description}&category=${category}&lat=${lat}&lng=${lng}`
-      })
+// Add the geocoder to the top-left of the map
+map.addControl(geocoder, 'top-left');
 
+// Fetch bar data from the /bars endpoint
+fetch('/bars')
   .then(response => response.json())
-  .then(bars => {
-    bars.forEach(bar => {
-      const coordinates = [bar.lng, bar.lat];
-      const popup = new mapboxgl.Popup({
-        closeButton: false,
-        offset: 25,
-        className: 'custom-popup-map'
-      })
-      .setHTML(createPopupContent(bar.name, bar.description, bar.category))
-      .addTo(map);
+  .then(data => {
+    if (data.message === 'success') {
+      const places = data.data;
 
-      new mapboxgl.Marker()
-        .setLngLat(coordinates)
-        .setPopup(popup)
-        .addTo(map);
-    });
-  });
+      // Iterate over each place and create a map marker
+      places.forEach(place => {
+        fetch(`/bars/${place.id}/tags`)
+          .then(response => response.json())
+          .then(tagsData => {
+            if (tagsData.message === 'success') {
+              place.tags = tagsData.data;
+            } else {
+              console.error('Error fetching tags data:', tagsData.error);
+              place.tags = [];
+            }
+
+            // Create a map marker
+            const titleEl = document.createElement('div');
+            titleEl.className = 'title';
+            titleEl.textContent = place.name;
+
+            const marker = new mapboxgl.Marker({ element: titleEl })
+              .setLngLat([place.longitude, place.latitude])
+              .addTo(map);
+
+            // Create a popup
+            const popup = createPopup(place);
+
+            // Attach the popup to the marker
+            marker.setPopup(popup);
+          })
+          .catch(error => console.error('Error fetching tags data:', error));
+      });
+    }
+  })
+  .catch(error => console.error('Error fetching place data:', error));
+
+function createPopup(place) {
+  const popup = new mapboxgl.Popup().setHTML(`
+    <h3>${place.name}</h3>
+    <p>${place.description}</p>
+    <div id="tags-${place.id}" class="tags">
+      <h4>Tags:</h4>
+      <ul id="tag-list-${place.id}" class="tag-list">
+        ${place.tags
+          .map(
+            tag =>
+              `<li>${tag.name} (Upvotes: ${tag.upvotes}, Downvotes: ${tag.downvotes}) <button onclick="voteTag(${tag.id}, 1)">Upvote</button> <button onclick="voteTag(${tag.id}, -1)">Downvote</button></li>`
+          )
+          .join('')}
+      </ul>
+      <div class="tag-form">
+        <input type="text" id="tag-input-${place.id}" placeholder="Enter a new tag">
+        <button class="tag-button" onclick="addTag(${place.id})">Add Tag</button>
+      </div>
+    </div>
+  `);
+
+  return popup;
 }
 
-// Function to create popup content for a bar
-function createPopupContent(name, description, category) {
-  const content = `
-    <h3>${name}</h3>
-    <p>Description: ${description}</p>
-    <p>Category: ${category}</p>
-  `;
-
-  return content;
-}
-
-// Event listener to show the add bar form when "Ajoute un lieu" button is clicked
-document.getElementById('ajoute-un-bar').addEventListener('click', function() {
-  document.getElementById('add-bar-form').style.display = 'block';
-});
-
-// Event listener to handle form submission
-document.getElementById('add-bar-form').addEventListener('submit', function(event) {
-  event.preventDefault();
-  const form = event.target;
-  const name = form.elements['bar-name'].value;
-  const description = form.elements['bar-description'].value;
-  const category = form.elements['bar-category'].value;
-  const lat = form.elements['bar-lat'].value;
-  const lng = form.elements['bar-lng'].value;
-
-  addBar(name, description, category, lat, lng);
-});
-
-// Function to add a new bar to the database
-function addBar(name, description, category, lat, lng) {
-  const params = new URLSearchParams();
-  params.append('action', 'addBar');
-  params.append('name', name);
-  params.append('description', description);
-  params.append('category', category);
-  params.append('lat', lat);
-  params.append('lng', lng);
-
-  fetch('DatabaseHandler.php', {
+function voteTag(tagId, vote) {
+  fetch(`/tags/${tagId}/vote`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json'
     },
-    body: params.toString(),
+    body: JSON.stringify({ vote: vote })
   })
-    .then(response => response.text())
-    .then(response => {
-      console.log(response); // Log the response from the server
-      document.getElementById('add-bar-form').style.display = 'none'; // Hide the form after submission
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === 'success') {
+        console.log('Successfully voted on tag:', tagId);
+      }
     })
-    .catch(error => console.log(error));
+    .catch(error => console.error('Error voting on tag:', error));
 }
 
-// Call the function to fetch bars from the backend and add them to the map
-fetchBars(map);
+function addTag(barId) {
+  const tagInput = document.getElementById(`tag-input-${barId}`);
+  const tag = tagInput.value;
+  if (!tag) return;
+  fetch(`/bars/${barId}/tags`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name: tag })
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === 'success') {
+        console.log('Successfully added tag:', tag);
+        const tagList = document.getElementById(`tag-list-${barId}`);
+        const newTag = data.data;
+        tagList.innerHTML += `<li>${newTag.name} (Upvotes: ${newTag.upvotes}, Downvotes: ${newTag.downvotes}) <button onclick="voteTag(${newTag.id}, 1)">Upvote</button> <button onclick="voteTag(${newTag.id}, -1)">Downvote</button></li>`;
+      }
+    })
+    .catch(error => console.error('Error adding tag:', error));
+  tagInput.value = '';
+}
+
+function toggleForm() {
+  const stepOneForm = document.getElementById('step-one-form');
+  const stepTwoForm = document.getElementById('step-two-form');
+
+  if (stepOneForm.style.display === 'none') {
+    stepOneForm.style.display = 'block';
+    stepTwoForm.style.display = 'none';
+  } else {
+    stepOneForm.style.display = 'none';
+    stepTwoForm.style.display = 'block';
+
+    const placeSearchInput = document.getElementById('place-search');
+    const searchQuery = placeSearchInput.value;
+
+    if (searchQuery) {
+      geocoder.query(searchQuery, function (result) {
+        const placeNameInput = document.getElementById('place-name');
+        const placeLatInput = document.getElementById('place-lat');
+        const placeLngInput = document.getElementById('place-lng');
+
+        placeNameInput.value = result.result.text;
+        placeLatInput.value = result.result.center[1];
+        placeLngInput.value = result.result.center[0];
+      });
+    }
+  }
+}
+
+function validateSearch() {
+  const placeSearchInput = document.getElementById('place-search');
+  const searchQuery = placeSearchInput.value;
+
+  if (searchQuery) {
+    geocoder.query(searchQuery, function (result) {
+      const placeNameInput = document.getElementById('place-name');
+      const placeDescriptionInput = document.getElementById('place-description');
+      const placeTagsInput = document.getElementById('place-tags');
+      const placeLatInput = document.getElementById('place-lat');
+      const placeLngInput = document.getElementById('place-lng');
+      const stepOneForm = document.getElementById('step-one-form');
+      const stepTwoForm = document.getElementById('step-two-form');
+
+      placeNameInput.value = result.result.text;
+      placeDescriptionInput.value = '';
+      placeTagsInput.value = '';
+      placeLatInput.value = result.result.center[1];
+      placeLngInput.value = result.result.center[0];
+      stepOneForm.style.display = 'none';
+      stepTwoForm.style.display = 'block';
+    });
+  }
+}
+
+function submitForm(event) {
+  event.preventDefault();
+
+  const placeName = document.getElementById('place-name').value;
+  const placeDescription = document.getElementById('place-description').value;
+  const placeTags = document.getElementById('place-tags').value;
+  const placeLat = document.getElementById('place-lat').value;
+  const placeLng = document.getElementById('place-lng').value;
+
+  const formData = {
+    name: placeName,
+    description: placeDescription,
+    tags: placeTags,
+    latitude: placeLat,
+    longitude: placeLng
+  };
+
+  fetch('/bars', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(formData)
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === 'success') {
+        console.log('Successfully added bar:', data.data);
+        // Clear form inputs
+        document.getElementById('place-name').value = '';
+        document.getElementById('place-description').value = '';
+        document.getElementById('place-tags').value = '';
+        document.getElementById('place-lat').value = '';
+        document.getElementById('place-lng').value = '';
+        // Toggle form visibility
+        toggleForm();
+      } else {
+        console.error('Error adding bar:', data.error);
+      }
+    })
+    .catch(error => console.error('Error adding bar:', error));
+}
+
+// Attach event listener to the form submit button
+document.getElementById('step-two-form').addEventListener('submit', submitForm);

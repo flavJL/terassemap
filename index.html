@@ -22,34 +22,38 @@
         <button id="trouve-un-bar"><b>Trouve un bar cool</b></button>
     </div>
     <div id="ajouter-button">
-        <button id="ajoute-un-bar"><b>Ajoute un lieu</b></button>
+        <button id="ajoute-un-bar" onclick="toggleForm()"><b>Ajoute un lieu</b></button>
         <!-- This form will be used to submit new bars -->
-        <form id="add-bar-form" style="display: none;">
-            <label for="bar-name">Bar Name:</label><br>
-            <input type="text" id="bar-name" name="bar-name"><br>
-            <label for="bar-description">Description:</label><br>
-            <input type="text" id="bar-description" name="bar-description"><br>
-            <label for="bar-category">Category:</label><br>
-            <input type="text" id="bar-category" name="bar-category"><br>
-            <label for="bar-lat">Latitude:</label><br>
-            <input type="text" id="bar-lat" name="bar-lat"><br>
-            <label for="bar-lng">Longitude:</label><br>
-            <input type="text" id="bar-lng" name="bar-lng"><br>
+        <div id="step-one-form" style="display: none;">
+            <label for="place-search">Search for a location:</label><br>
+            <input type="text" id="place-search" name="place-search">
+            <button id="validate-search" onclick="validateSearch()"><b>Valider</b></button>
+        </div>
+        <form id="step-two-form" style="display: none;">
+            <label for="place-name">Bar Name:</label><br>
+            <input type="text" id="place-name" name="place-name"><br>
+            <label for="place-description">Description:</label><br>
+            <input type="text" id="place-description" name="place-description"><br>
+            <label for="place-tags">Tags:</label><br>
+            <input type="text" id="place-tags" name="place-tags"><br>
+            <label for="place-lat">Latitude:</label><br>
+            <input type="text" id="place-lat" name="place-lat"><br>
+            <label for="place-lng">Longitude:</label><br>
+            <input type="text" id="place-lng" name="place-lng"><br>
             <input type="submit" value="Submit">
         </form>
     </div>
     <div id="bord-de-mer-filtre-categorie">
-    <label for="criteres"></label>
-    <select name="critere" id="critere">
-        <option value="bord_de_mer">Bord de mer 🌊</option>
-        <option value="happy_hour">Happy Our</option>
-        <option value="avec_vue">Belle vue</option>
-        <option value="chic">Chic </option>
-    </select></div>
+        <label for="criteres"></label>
+        <select name="critere" id="critere">
+            <option value="bord_de_mer">Bord de mer 🌊</option>
+            <option value="terrasse">Terrasse 🌞</option>
+            <option value="animations">Animations 🎉</option>
+        </select>
+    </div>
     <div id="static-text">
-        <button id="promote-button">Mettre en avant votre bar</button>
+        <h4>Trouve un bar cool à Marseille 🌴</h4>
     </div>
     <script src="script.js"></script>
-    <script src="frontend.js"></script>
 </body>
 </html>
