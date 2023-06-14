@@ -12,7 +12,7 @@ const map = new mapboxgl.Map({
 const geocoder = new MapboxGeocoder({
   accessToken: mapboxgl.accessToken,
   mapboxgl: mapboxgl,
-  placeholder: 'Cherche un bar' // Custom placeholder text
+  placeholder: 'Ajoute un bar' // Custom placeholder text
 });
 
 // Add the geocoder to the top-left of the map
@@ -58,35 +58,35 @@ fetch('/bars')
   })
   .catch(error => console.error('Error fetching place data:', error));
 
-  function createPopup(place) {
-    const popup = new mapboxgl.Popup().setHTML(`
-      <div class="popup-container">
-        <h3 class="popup-title">${place.name}</h3>
-        <p class="popup-description">${place.description}</p>
-        <div id="tags-${place.id}" class="tags">
-          <h4 class="tags-title">Caractéristiques:</h4>
-          <ul id="tag-list-${place.id}" class="tag-list">
-            ${place.tags
-              .map(
-                tag =>
-                  `<li class="tag-item">
-                    ${tag.name} 
-                    <span class="tag-votes">(👍 ${tag.upvotes} | 👎 ${tag.downvotes})</span>
-                    <div class="tag-buttons">
-                      <button class="tag-button" onclick="voteTag(${tag.id}, 1)">Vrai</button>
-                      <button class="tag-button" onclick="voteTag(${tag.id}, -1)">Faux</button>
-                    </div>
-                  </li>`
-              )
-              .join('')}
-          </ul>
-          <div class="tag-form">
-            <input type="text" id="tag-input-${place.id}" placeholder="Ajouter une caractéristique">
-            <button class="tag-button" onclick="addTag(${place.id})">Add Tag</button>
-          </div>
+function createPopup(place) {
+  const popup = new mapboxgl.Popup().setHTML(`
+    <div class="popup-container">
+      <h3 class="popup-title">${place.name}</h3>
+      <p class="popup-description">${place.description}</p>
+      <div id="tags-${place.id}" class="tags">
+        <h4 class="tags-title">Caractéristiques:</h4>
+        <ul id="tag-list-${place.id}" class="tag-list">
+          ${place.tags
+            .map(
+              tag =>
+                `<li class="tag-item">
+                  ${tag.name} 
+                  <span class="tag-votes">(👍 ${tag.upvotes} | 👎 ${tag.downvotes})</span>
+                  <div class="tag-buttons">
+                    <button class="tag-button" onclick="voteTag(${tag.id}, 1)">Vrai</button>
+                    <button class="tag-button" onclick="voteTag(${tag.id}, -1)">Faux</button>
+                  </div>
+                </li>`
+            )
+            .join('')}
+        </ul>
+        <div class="tag-form">
+          <input type="text" id="tag-input-${place.id}" placeholder="Ajouter une caractéristique">
+          <button class="tag-button" onclick="addTag(${place.id})">Add Tag</button>
         </div>
       </div>
-    `);
+    </div>
+  `);
 
   return popup;
 }
@@ -132,106 +132,17 @@ function addTag(barId) {
   tagInput.value = '';
 }
 
-function toggleForm() {
-  const stepTwoForm = document.getElementById('step-two-form');
+// Attach event listener to the geocoder result selection
+geocoder.on('result', function(e) {
+  const selectedPlace = e.result;
+  const placeName = selectedPlace.text; // Use 'text' instead of 'place_name' to get only the name
 
-  if (stepTwoForm.style.display === 'none') {
-    stepTwoForm.style.display = 'block';
-  } else {
-    stepTwoForm.style.display = 'none';
-  }
-}
+  // Populate the form with selected place data
+  document.getElementById('place-name').value = placeName;
+  document.getElementById('place-lat').style.display = 'none'; // Hide latitude field
+  document.getElementById('place-lng').style.display = 'none'; // Hide longitude field
 
-function validateSearch() {
-  const placeSearchInput = document.getElementById('place-search');
-  const searchQuery = placeSearchInput.value;
+  // Display the second part of the form
+  document.getElementById('step-two-form').style.display = 'block';
+});
 
-  if (searchQuery) {
-    geocoder.query(searchQuery, function (result) {
-      const placeNameInput = document.getElementById('place-name');
-      const placeDescriptionInput = document.getElementById('place-description');
-      const placeTagsInput = document.getElementById('place-tags');
-      const placeLatInput = document.getElementById('place-lat');
-      const placeLngInput = document.getElementById('place-lng');
-
-      placeNameInput.value = result.result.text;
-      placeDescriptionInput.value = '';
-      placeTagsInput.value = '';
-      placeLatInput.value = result.result.center[1];
-      placeLngInput.value = result.result.center[0];
-      
-      toggleForm();
-    });
-  }
-}
-
-function validateSearch() {
-  const placeSearchInput = document.getElementById('place-search');
-  const searchQuery = placeSearchInput.value;
-
-  if (searchQuery) {
-    geocoder.query(searchQuery, function (result) {
-      const placeNameInput = document.getElementById('place-name');
-      const placeDescriptionInput = document.getElementById('place-description');
-      const placeTagsInput = document.getElementById('place-tags');
-      const placeLatInput = document.getElementById('place-lat');
-      const placeLngInput = document.getElementById('place-lng');
-      const stepOneForm = document.getElementById('step-one-form');
-      const stepTwoForm = document.getElementById('step-two-form');
-
-      placeNameInput.value = result.result.text;
-      placeDescriptionInput.value = '';
-      placeTagsInput.value = '';
-      placeLatInput.value = result.result.center[1];
-      placeLngInput.value = result.result.center[0];
-      stepOneForm.style.display = 'none';
-      stepTwoForm.style.display = 'block';
-    });
-  }
-}
-
-function submitForm(event) {
-  event.preventDefault();
-
-  const placeName = document.getElementById('place-name').value;
-  const placeDescription = document.getElementById('place-description').value;
-  const placeTags = document.getElementById('place-tags').value;
-  const placeLat = document.getElementById('place-lat').value;
-  const placeLng = document.getElementById('place-lng').value;
-
-  const formData = {
-    name: placeName,
-    description: placeDescription,
-    tags: placeTags,
-    latitude: placeLat,
-    longitude: placeLng
-  };
-
-  fetch('/bars', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(formData)
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message === 'success') {
-        console.log('Successfully added bar:', data.data);
-        // Clear form inputs
-        document.getElementById('place-name').value = '';
-        document.getElementById('place-description').value = '';
-        document.getElementById('place-tags').value = '';
-        document.getElementById('place-lat').value = '';
-        document.getElementById('place-lng').value = '';
-        // Toggle form visibility
-        toggleForm();
-      } else {
-        console.error('Error adding bar:', data.error);
-      }
-    })
-    .catch(error => console.error('Error adding bar:', error));
-}
-
-// Attach event listener to the form submit button
-document.getElementById('step-two-form').addEventListener('submit', submitForm);

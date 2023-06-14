@@ -22,7 +22,7 @@
         <button id="trouve-un-bar"><b>Trouve un bar cool</b></button>
     </div>
     <div id="ajouter-button">
-        <button id="ajoute-un-bar" onclick="toggleForm()"><b>Ajoute un lieu</b></button>
+        <button id="ajoute-un-bar" onclick="toggleStepOneForm()"><b>Ajoute un lieu</b></button>
         <!-- This form will be used to submit new bars -->
         <div id="step-one-form" style="display: none;">
             <label for="place-search">Search for a location:</label><br>
@@ -30,17 +30,17 @@
             <button id="validate-search" onclick="validateSearch(); return false;"><b>Valider</b></button>
         </div>
         <form id="step-two-form" style="display: none;">
-            <label for="place-name">Bar Name:</label><br>
+            <label for="place-name">Nom du bar:</label><br>
             <input type="text" id="place-name" name="place-name"><br>
             <label for="place-description">Description:</label><br>
             <input type="text" id="place-description" name="place-description"><br>
-            <label for="place-tags">Tags:</label><br>
+            <label for="place-tags" class="hidden-field">Tags:</label><br>
             <input type="text" id="place-tags" name="place-tags"><br>
-            <label for="place-lat">Latitude:</label><br>
+            <label for="place-lat" class="hidden-field">Latitude:</label><br>
             <input type="text" id="place-lat" name="place-lat"><br>
-            <label for="place-lng">Longitude:</label><br>
+            <label for="place-lng" class="hidden-field">Longitude:</label><br>
             <input type="text" id="place-lng" name="place-lng"><br>
-            <input type="submit" value="Submit">
+            <input type="submit" value="Ajouter">
         </form>
     </div>
     <div id="bord-de-mer-filtre-categorie">

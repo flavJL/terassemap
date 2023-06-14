@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = 3009;  
+const port = 3000;  
 const db = require('./database.js');
 
 // Serve static files from the root directory
