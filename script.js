@@ -18,6 +18,20 @@ const geocoder = new MapboxGeocoder({
 // Add the geocoder to the top-left of the map
 map.addControl(geocoder, 'top-left');
 
+// Attach event listener to the geocoder result selection
+geocoder.on('result', function(e) {
+  const selectedPlace = e.result;
+  const placeName = selectedPlace.text; // Use 'text' instead of 'place_name' to get only the name
+
+  // Populate the form with selected place data
+  document.getElementById('place-name').value = placeName;
+  document.getElementById('place-lat').value = selectedPlace.center[1]; // Set latitude value
+  document.getElementById('place-lng').value = selectedPlace.center[0]; // Set longitude value
+
+  // Display the second part of the form
+  document.getElementById('step-two-form').style.display = 'block';
+});
+
 // Fetch bar data from the /bars endpoint
 fetch('/bars')
   .then(response => response.json())
@@ -38,19 +52,12 @@ fetch('/bars')
             }
 
             // Create a map marker
-            const titleEl = document.createElement('div');
-            titleEl.className = 'title';
-            titleEl.textContent = place.name;
-
-            const marker = new mapboxgl.Marker({ element: titleEl })
+            const marker = new mapboxgl.Marker()
               .setLngLat([place.longitude, place.latitude])
               .addTo(map);
 
-            // Create a popup
-            const popup = createPopup(place);
-
             // Attach the popup to the marker
-            marker.setPopup(popup);
+            marker.setPopup(createPopup(place));
           })
           .catch(error => console.error('Error fetching tags data:', error));
       });
@@ -69,7 +76,7 @@ function createPopup(place) {
           ${place.tags
             .map(
               tag =>
-                `<li class="tag-item">
+                `<li id="tag-item-${tag.id}" class="tag-item">
                   ${tag.name} 
                   <span class="tag-votes">(👍 ${tag.upvotes} | 👎 ${tag.downvotes})</span>
                   <div class="tag-buttons">
@@ -103,6 +110,13 @@ function voteTag(tagId, vote) {
     .then(data => {
       if (data.message === 'success') {
         console.log('Successfully voted on tag:', tagId);
+
+        // Find the tag element in the DOM
+        const tagElement = document.querySelector(`#tag-item-${tagId}`);
+
+        // Update the tag votes in the DOM
+        const tagVotesElement = tagElement.querySelector('.tag-votes');
+        tagVotesElement.textContent = `(👍 ${data.data.upvotes} | 👎 ${data.data.downvotes})`;
       }
     })
     .catch(error => console.error('Error voting on tag:', error));
@@ -132,17 +146,58 @@ function addTag(barId) {
   tagInput.value = '';
 }
 
-// Attach event listener to the geocoder result selection
-geocoder.on('result', function(e) {
-  const selectedPlace = e.result;
-  const placeName = selectedPlace.text; // Use 'text' instead of 'place_name' to get only the name
-
-  // Populate the form with selected place data
-  document.getElementById('place-name').value = placeName;
-  document.getElementById('place-lat').style.display = 'none'; // Hide latitude field
-  document.getElementById('place-lng').style.display = 'none'; // Hide longitude field
-
-  // Display the second part of the form
-  document.getElementById('step-two-form').style.display = 'block';
+document.getElementById('step-two-form').addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent form submission
+  submitForm();
 });
 
+function submitForm() {
+  const placeName = document.getElementById('place-name').value;
+  const placeDescription = document.getElementById('place-description').value;
+  const placeLat = document.getElementById('place-lat').value;
+  const placeLng = document.getElementById('place-lng').value;
+
+  const place = {
+    name: placeName,
+    description: placeDescription,
+    latitude: parseFloat(placeLat),
+    longitude: parseFloat(placeLng)
+  };
+
+  fetch('/bars', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(place)
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === 'success') {
+        console.log('Successfully added place:', data.data);
+
+        // Add the new place to the map
+        const newPlace = data.data;
+
+        // Create a map marker for the added place
+        const marker = new mapboxgl.Marker()
+          .setLngLat([newPlace.longitude, newPlace.latitude])
+          .addTo(map);
+
+        // Attach the popup to the marker
+        marker.setPopup(createPopup(newPlace));
+
+        // Center the map on the new place
+        map.flyTo({
+          center: [newPlace.longitude, newPlace.latitude],
+          zoom: 13,
+          speed: 1.2,
+          curve: 1,
+          easing(t) {
+            return t;
+          }
+        });
+      }
+    })
+    .catch(error => console.error('Error adding place:', error));
+}

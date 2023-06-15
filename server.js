@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = 2000;
+const port = 3000;
 const pool = require('./database.js');
 
 // Serve static files from the root directory
@@ -31,7 +31,7 @@ app.get('/bars', (req, res) => {
     });
 });
 
-app.post('/bars', express.json(), (req, res) => {
+app.post('/bars', (req, res) => {
   const { name, description, latitude, longitude } = req.body;
   const sql = 'INSERT INTO bars (name, description, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING id';
   const values = [name, description, latitude, longitude];
@@ -80,7 +80,7 @@ app.get('/bars/:id/tags', (req, res) => {
     });
 });
 
-app.post('/bars/:id/tags', express.json(), (req, res) => {
+app.post('/bars/:id/tags', (req, res) => {
   const { name } = req.body;
   const sql = 'INSERT INTO tags (name, bar_id) VALUES ($1, $2) RETURNING id';
   const values = [name, req.params.id];
@@ -108,7 +108,7 @@ app.post('/bars/:id/tags', express.json(), (req, res) => {
     });
 });
 
-app.post('/tags/:id/vote', express.json(), (req, res) => {
+app.post('/tags/:id/vote', (req, res) => {
   const { vote } = req.body;
   const sql = vote > 0
     ? 'UPDATE tags SET upvotes = upvotes + 1 WHERE id = $1'
