@@ -2,17 +2,72 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Nunito', sans-serif;
+    display:flex;
+    flex-direction: row-reverse;
 }
 
 #map {
     height: calc(100vh - 50px);
-    width: 100%;
+    width: 75%;
+}
+
+#sidebar {
+  width: 25%;
+  overflow-y: auto;
+  height: 100vh;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #050505;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 20px;
+}
+
+#sidebar #sidebar-header {
+  padding: 30px;
+}
+
+#sidebar #sidebar-header h1 {
+  font-size: 22px;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+    color: #fff;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+    cursor: pointer;
+    margin-left: 3px;
+
+}
+
+#sidebar #sidebar-header h2 {
+    font-size: 22px;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+    color: #fff;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+    cursor: pointer;
+    margin-left: 3px;
+}
+
+#bar-list {
+  color: white;
+}
+
+#bar-list li {
+  color: white;
+  padding: 5px 0;
+  /* Add more styles as necessary, for example: */
+  /* background-color: #333; */
+  /* border-bottom: 1px solid #444; */
 }
 
 #trouve-button {
     position: absolute;
     top: 150px;
-    left: 0px;
+    left: 25%;
     padding: 10px;
     z-index: 1;
 }
@@ -30,7 +85,7 @@ body {
 #ajouter-button {
     position: absolute;
     top: 200px;
-    left: 0px;
+    left: 25%;
     padding: 10px;
     z-index: 1;
 }
@@ -48,7 +103,7 @@ body {
 #bord-de-mer-filtre-categorie {
     position: absolute;
     top: 55px;
-    left: 0px;
+    left: 25%;
     padding: 10px;
     z-index: 1;
 }
@@ -63,23 +118,6 @@ body {
     cursor: pointer;
 
 }
-
-#static-text {
-    position: absolute;
-    font-size: 22px;
-    top: 0px;
-    left: 0px;
-    z-index: 1;
-    color: #fff;
-    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
-    text-align: center;
-    cursor: pointer;
-    margin-left: 300px;
-    margin-right: 10px;
-    margin-top: -20px;
-    margin-bottom: -20px;
-}
-
 
 #search-container {
     position: absolute;
@@ -151,7 +189,7 @@ body {
   
   .title {
     position: absolute;
-    left: 50%;
+    left: 70%;
     transform: translateX(-50%, -100%);
     top: -30px;
     text-align: center;

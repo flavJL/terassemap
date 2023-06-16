@@ -39,6 +39,14 @@ fetch('/bars')
     if (data.message === 'success') {
       const places = data.data;
 
+      // Populate sidebar with bars data
+      const barList = document.getElementById('bar-list');
+      places.forEach(place => {
+        const listItem = document.createElement('li');
+        listItem.textContent = place.name;
+        barList.appendChild(listItem);
+      });
+
       // Iterate over each place and create a map marker
       places.forEach(place => {
         fetch(`/bars/${place.id}/tags`)
