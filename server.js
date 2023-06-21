@@ -5,10 +5,10 @@ const port = 3000;
 const pool = require('./database.js');
 
 // Serve static files from the root directory
-app.use(express.static(path.join(__dirname, '.')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.use(express.json()); // Add this to parse JSON request body
